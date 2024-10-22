@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: spring-aspect
+
+logging:
+  level:
+    com.nf.*: info
