@@ -1,4 +1,4 @@
-package com.nf.thestartap.spring.aspect;
+package com.nf.thestartap.spring.common;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

@@ -1,4 +1,4 @@
-package com.nf.thestartap.spring.aspect;
+package com.nf.thestartap.spring.common;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -26,7 +26,7 @@ public class LoggingResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response setLogLevel(LoggerInfo loggerInfo) {
-        loggingService.setLogLevel(loggerInfo);
+        loggingService.setLogLevel(loggerInfo, "AVC123");
         return Response.ok().build();
     }
 }

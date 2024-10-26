@@ -1,4 +1,4 @@
-package com.nf.thestartap.spring.aspect;
+package com.nf.thestartap.spring.common;
 
 public record LoggerInfo(String logger, String level) {
 }

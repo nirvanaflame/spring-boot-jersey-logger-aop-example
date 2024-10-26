@@ -10,28 +10,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Slf4j(topic = "trans.log")
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.IntStream;
+
+@Slf4j
 @Aspect
 @Component
-public class TransactionLogInterceptor {
+public class TransactionLogAspect {
 
-    private final Logger transaction;
-
-    public TransactionLogInterceptor() {
-        this.transaction = LoggerFactory.getLogger("transaction.log");
-    }
+    private final Logger transaction = LoggerFactory.getLogger("transaction.log");
 
     @Around("@annotation(com.nf.thestartap.spring.aspect.TransactionLog)")
     public Object logTransaction(ProceedingJoinPoint jointPoint) throws Throwable {
         log.info("logTransaction::enter");
-        log.info("logTransaction::args=[{}]", jointPoint.getArgs());
+
         TransactionLog annotation = ((MethodSignature) jointPoint.getSignature()).getMethod().getAnnotation(TransactionLog.class);
-        annotation.args();
+        var logArg = getArgsToLog(jointPoint.getArgs(), annotation.exclude());
+
+        log.info("logTransaction::args=[{}]", logArg);
 
         Object result = jointPoint.proceed();
         String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result);
         transaction.info("logTransaction:: after proceed={}", json);
 
         return result;
+    }
+
+    private static Object[] getArgsToLog(Object[] args, int[] exclude) {
+        return exclude.length == 0
+                ? args
+                : IntStream.range(0, args.length)
+                .filter(i -> Arrays.stream(exclude).noneMatch(it -> it == i))
+                .mapToObj(i -> args[i])
+                .toArray();
     }
 }
