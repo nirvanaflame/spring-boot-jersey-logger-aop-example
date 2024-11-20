@@ -1,6 +1,5 @@
 package com.nf.thestartap.spring.aspect;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -10,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.stream.IntStream;
+import java.lang.reflect.Method;
 
 @Slf4j
 @Aspect
@@ -25,24 +22,15 @@ public class TransactionLogAspect {
     public Object logTransaction(ProceedingJoinPoint jointPoint) throws Throwable {
         log.info("logTransaction::enter");
 
-        TransactionLog annotation = ((MethodSignature) jointPoint.getSignature()).getMethod().getAnnotation(TransactionLog.class);
-        var logArg = getArgsToLog(jointPoint.getArgs(), annotation.exclude());
+        Method method = ((MethodSignature) jointPoint.getSignature()).getMethod();
+        TransactionLog annotation = method.getAnnotation(TransactionLog.class);
 
-        log.info("logTransaction::args=[{}]", logArg);
+        // Access the values
+        String value = annotation.value();
+        String serviceName = annotation.serviceName();
 
-        Object result = jointPoint.proceed();
-        String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result);
-        transaction.info("logTransaction:: after proceed={}", json);
+        log.info("logTransaction:: annotation value={}, serviceName={}", value, serviceName);
 
-        return result;
-    }
-
-    private static Object[] getArgsToLog(Object[] args, int[] exclude) {
-        return exclude.length == 0
-                ? args
-                : IntStream.range(0, args.length)
-                .filter(i -> Arrays.stream(exclude).noneMatch(it -> it == i))
-                .mapToObj(i -> args[i])
-                .toArray();
+        return jointPoint.proceed();
     }
 }

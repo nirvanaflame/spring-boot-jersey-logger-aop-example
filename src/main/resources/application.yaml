@@ -1,6 +1,8 @@
 spring:
   application:
     name: spring-aspect
+  jersey:
+    type: filter
 
 logging:
   level:
